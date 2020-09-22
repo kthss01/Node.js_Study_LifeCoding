@@ -1,7 +1,7 @@
 var url = require('url'); // fs
 var qs = require('querystring');
 var template = require('./template.js');
-var db = require('./db.js')
+var db = require('./db.js');
 
 exports.home = function(request, response) {
   db.query(`SELECT * FROM topic`, function(error, topics) {
