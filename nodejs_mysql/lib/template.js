@@ -1,3 +1,5 @@
+var sanitizeHtml = require('sanitize-html');
+
 // var template = {
 module.exports = {
   html: function(title, list, body, control) {
@@ -37,7 +39,7 @@ module.exports = {
       if (authors[i].id === author_id) {
         selected = ' selected';
       }
-      tag += `<option value="${authors[i].id}"${selected}>${authors[i].name}</option>`;
+      tag += `<option value="${authors[i].id}"${selected}>${sanitizeHtml(authors[i].name)}</option>`;
       i++;
     }
 
@@ -53,10 +55,15 @@ module.exports = {
     while (i < authors.length) {
       tag += `
         <tr>
-          <td>${authors[i].name}</td>
-          <td>${authors[i].profile}</td>
+          <td>${senitizeHtml(authors[i].name)}</td>
+          <td>${senitizeHtml(authors[i].profile)}</td>
           <td><a href="/author/update?id=${authors[i].id}">update</a></td>
-          <td>delete</td>
+          <td>
+            <form action="/author/delete_process" method="post">
+              <input type="hidden" name="id" value="${authors[i].id}">
+              <input type="submit" value="delete">
+            </form>
+          </td>
         </tr>
         `
       i++;

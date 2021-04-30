@@ -2,6 +2,7 @@ var url = require('url'); // fs
 var qs = require('querystring');
 var template = require('./template.js');
 var db = require('./db.js');
+var sanitizeHtml = require('sanitize-html');
 
 exports.home = function(request, response) {
   db.query(`SELECT * FROM topic`, function(error, topics) {
@@ -31,7 +32,7 @@ exports.page = function(request, response) {
       throw error;
     }
 
-    db.query(`SELECT * FROM topic LEFT JOIN author ON topic.author_id=author.id WHERE topic.id=?`, [queryData.id], function(error2, topic) {
+    var query = db.query(`SELECT * FROM topic LEFT JOIN author ON topic.author_id=author.id WHERE topic.id=?`, [queryData.id], function(error2, topic) {
       if (error2) {
         throw error2;
       }
@@ -54,6 +55,7 @@ exports.page = function(request, response) {
           </form>`
       );
 
+      console.log(query.sql);
       response.writeHead(200);
       response.end(html);
     });
@@ -109,7 +111,7 @@ exports.create_process = function(request, response) {
 
     db.query(
       `INSERT INTO topic (title, description, created, author_id) VALUES(?, ?, NOW(), ?)`,
-      [post.title, post.description, post.author],
+      [sanitizeHtml(post.title), sanitizeHtml(post.description), sanitizeHtml(post.author)],
       function(error, result) {
         if (error) {
           throw error;
@@ -180,7 +182,7 @@ exports.update_process = function(request, response) {
     var post = qs.parse(body);
 
     db.query(`UPDATE topic SET title=?, description=?, author_id=? WHERE id=?`,
-      [post.title, post.description, post.author, post.id],
+      [sanitizeHtml(post.title), sanitizeHtml(post.description), sanitizeHtml(post.author), sanitizeHtml(post.id)],
       function(error, result) {
         response.writeHead(302, {
           Location: `/?id=${post.id}`
